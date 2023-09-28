@@ -146,13 +146,13 @@ static void xio3130_downstream_exitfn(PCIDevice *d)
 static Property xio3130_downstream_props[] = {
     DEFINE_PROP_BIT(COMPAT_PROP_PCP, PCIDevice, cap_present,
                     QEMU_PCIE_SLTCAP_PCP_BITNR, true),
-    DEFINE_PROP_SIZE("mem-reserve", PCIDevice,
+    DEFINE_PROP_SIZE("mem-reserve", PCIESwitchPort,
                      res_reserve.mem_non_pref, -1),
-    DEFINE_PROP_SIZE("pref64-reserve", PCIDevice,
+    DEFINE_PROP_SIZE("pref64-reserve", PCIESwitchPort,
                      res_reserve.mem_pref_64, -1),
-    DEFINE_PROP_PCIE_LINK_SPEED("x-speed", PCIESlot,
+    DEFINE_PROP_PCIE_LINK_SPEED("x-speed", PCIESwitchPort,
                                 speed, PCIE_LINK_SPEED_16),
-    DEFINE_PROP_PCIE_LINK_WIDTH("x-width", PCIESlot,
+    DEFINE_PROP_PCIE_LINK_WIDTH("x-width", PCIESwitchPort,
                                 width, PCIE_LINK_WIDTH_32),
     DEFINE_PROP_END_OF_LIST()
 };
