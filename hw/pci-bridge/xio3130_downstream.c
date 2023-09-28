@@ -42,7 +42,7 @@
 #define XIO3130_EXP_OFFSET              0x90
 #define XIO3130_AER_OFFSET              0x100
 
-#define TYPE_PCIE_SWITCH_PORT                "pcie-switch-port"
+#define TYPE_PCIE_SWITCH_PORT            "xio3130-downstream"
 OBJECT_DECLARE_SIMPLE_TYPE(PCIESwitchPort, PCIE_SWITCH_PORT)
 #define PCIE_SWITCH_PORT_DEFAULT_IO_RANGE          4096
 
@@ -88,15 +88,10 @@ static void xio3130_downstream_realize(PCIDevice *d, Error **errp)
     pci_bridge_initfn(d, TYPE_PCIE_BUS);
     pcie_port_init_reg(d);
 
-    if (psp->res_reserve.io == -1 && s->hotplug && !s->native_hotplug) {
-        psp->res_reserve.io = PCIE_SWITCH_PORT_DEFAULT_IO_RANGE;
-    }
-    
     rc = pci_bridge_qemu_reserve_cap_init(d, 0, psp->res_reserve, errp);
 
     if (rc < 0) {
-        // TODOD PARENT EXIT
-        return;
+        goto err_bridge; 
     }
 
     rc = msi_init(d, XIO3130_MSI_OFFSET, XIO3130_MSI_NR_VECTOR,
