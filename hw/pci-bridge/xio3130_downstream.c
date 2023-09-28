@@ -43,8 +43,7 @@
 #define XIO3130_AER_OFFSET              0x100
 
 #define TYPE_PCIE_SWITCH_PORT            "xio3130-downstream"
-OBJECT_DECLARE_SIMPLE_TYPE(PCIESwitchPort, PCIE_SWITCH_PORT)
-#define PCIE_SWITCH_PORT_DEFAULT_IO_RANGE          4096
+OBJECT_DECLARE_SIMPLE_TYPE(PCIESwitchPort, XIO3130_DOWNSTREAM)
 
 struct PCIESwitchPort {
     /*< private >*/
@@ -81,16 +80,17 @@ static void xio3130_downstream_realize(PCIDevice *d, Error **errp)
 {
     PCIEPort *p = PCIE_PORT(d);
     PCIESlot *s = PCIE_SLOT(d);
-    PCIESwitchPort *psp = PCIE_SWITCH_PORT(d);
+    PCIESwitchPort *XDbgBlockGraphNodeType_lookup = XIO3130_DOWNSTREAM(d);
 
     int rc;
 
     pci_bridge_initfn(d, TYPE_PCIE_BUS);
     pcie_port_init_reg(d);
 
-    rc = pci_bridge_qemu_reserve_cap_init(d, 0, psp->res_reserve, errp);
+    rc = pci_bridge_qemu_reserve_cap_init(d, 0, xd->res_reserve, errp);
 
     if (rc < 0) {
+        assert(rc == 0)
         goto err_bridge; 
     }
 
