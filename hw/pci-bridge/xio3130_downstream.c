@@ -25,6 +25,7 @@
 #include "hw/pci/pcie.h"
 #include "hw/pci/pcie_port.h"
 #include "hw/qdev-properties.h"
+#include "hw/qdev-properties-system.h"
 #include "migration/vmstate.h"
 #include "qapi/error.h"
 #include "qemu/module.h"
@@ -40,6 +41,10 @@
 #define XIO3130_SSVID_SSID              0
 #define XIO3130_EXP_OFFSET              0x90
 #define XIO3130_AER_OFFSET              0x100
+
+#define TYPE_PCIE_SWITCH_PORT                "pcie-switch-port"
+OBJECT_DECLARE_SIMPLE_TYPE(PCIESwitchPort, PCIE_SWITCH_PORT)
+#define PCIE_SWITCH_PORT_DEFAULT_IO_RANGE          4096
 
 struct PCIESwitchPort {
     /*< private >*/
@@ -76,10 +81,23 @@ static void xio3130_downstream_realize(PCIDevice *d, Error **errp)
 {
     PCIEPort *p = PCIE_PORT(d);
     PCIESlot *s = PCIE_SLOT(d);
+    PCIESwitchPort *psp = PCIE_SWITCH_PORT(d);
+
     int rc;
 
     pci_bridge_initfn(d, TYPE_PCIE_BUS);
     pcie_port_init_reg(d);
+
+    if (psp->res_reserve.io == -1 && s->hotplug && !s->native_hotplug) {
+        psp->res_reserve.io = PCIE_SWITCH_PORT_DEFAULT_IO_RANGE;
+    }
+    
+    rc = pci_bridge_qemu_reserve_cap_init(d, 0, psp->res_reserve, errp);
+
+    if (rc < 0) {
+        // TODOD PARENT EXIT
+        return;
+    }
 
     rc = msi_init(d, XIO3130_MSI_OFFSET, XIO3130_MSI_NR_VECTOR,
                   XIO3130_MSI_SUPPORTED_FLAGS & PCI_MSI_FLAGS_64BIT,
@@ -150,9 +168,9 @@ static Property xio3130_downstream_props[] = {
                      res_reserve.mem_non_pref, -1),
     DEFINE_PROP_SIZE("pref64-reserve", PCIESwitchPort,
                      res_reserve.mem_pref_64, -1),
-    DEFINE_PROP_PCIE_LINK_SPEED("x-speed", PCIESwitchPort,
+    DEFINE_PROP_PCIE_LINK_SPEED("x-speed", PCIESlot,
                                 speed, PCIE_LINK_SPEED_16),
-    DEFINE_PROP_PCIE_LINK_WIDTH("x-width", PCIESwitchPort,
+    DEFINE_PROP_PCIE_LINK_WIDTH("x-width", PCIESlot,
                                 width, PCIE_LINK_WIDTH_32),
     DEFINE_PROP_END_OF_LIST()
 };
@@ -193,6 +211,7 @@ static void xio3130_downstream_class_init(ObjectClass *klass, void *data)
 static const TypeInfo xio3130_downstream_info = {
     .name          = TYPE_XIO3130_DOWNSTREAM,
     .parent        = TYPE_PCIE_SLOT,
+    .instance_size = sizeof(PCIESwitchPort),
     .class_init    = xio3130_downstream_class_init,
     .interfaces = (InterfaceInfo[]) {
         { INTERFACE_PCIE_DEVICE },
