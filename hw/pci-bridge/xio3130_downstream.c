@@ -41,6 +41,15 @@
 #define XIO3130_EXP_OFFSET              0x90
 #define XIO3130_AER_OFFSET              0x100
 
+struct PCIESwitchPort {
+    /*< private >*/
+    PCIESlot parent_obj;
+    /*< public >*/
+
+    /* additional resources to reserve */
+    PCIResReserve res_reserve;
+};
+
 static void xio3130_downstream_write_config(PCIDevice *d, uint32_t address,
                                          uint32_t val, int len)
 {
@@ -137,6 +146,14 @@ static void xio3130_downstream_exitfn(PCIDevice *d)
 static Property xio3130_downstream_props[] = {
     DEFINE_PROP_BIT(COMPAT_PROP_PCP, PCIDevice, cap_present,
                     QEMU_PCIE_SLTCAP_PCP_BITNR, true),
+    DEFINE_PROP_SIZE("mem-reserve", PCIDevice,
+                     res_reserve.mem_non_pref, -1),
+    DEFINE_PROP_SIZE("pref64-reserve", PCIDevice,
+                     res_reserve.mem_pref_64, -1),
+    DEFINE_PROP_PCIE_LINK_SPEED("x-speed", PCIESlot,
+                                speed, PCIE_LINK_SPEED_16),
+    DEFINE_PROP_PCIE_LINK_WIDTH("x-width", PCIESlot,
+                                width, PCIE_LINK_WIDTH_32),
     DEFINE_PROP_END_OF_LIST()
 };
 
