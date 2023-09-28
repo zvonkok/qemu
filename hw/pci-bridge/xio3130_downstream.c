@@ -130,7 +130,6 @@ static void xio3130_downstream_realize(PCIDevice *d, Error **errp)
     rc = pci_bridge_qemu_reserve_cap_init(d, 0, xd->res_reserve, errp);
 
     if (rc < 0) {
-        assert(rc == 0);
         goto err;
     }
 
@@ -163,6 +162,8 @@ static Property xio3130_downstream_props[] = {
                     QEMU_PCIE_SLTCAP_PCP_BITNR, true),
     DEFINE_PROP_SIZE("mem-reserve", PCIESwitchPort,
                      res_reserve.mem_non_pref, -1),
+    DEFINE_PROP_SIZE("pref32-reserve", PCIESwitchPort,
+                     res_reserve.mem_pref_32, -1),
     DEFINE_PROP_SIZE("pref64-reserve", PCIESwitchPort,
                      res_reserve.mem_pref_64, -1),
     DEFINE_PROP_PCIE_LINK_SPEED("x-speed", PCIESlot,
