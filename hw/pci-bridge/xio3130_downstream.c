@@ -42,7 +42,7 @@
 #define XIO3130_EXP_OFFSET              0x90
 #define XIO3130_AER_OFFSET              0x100
 
-#define TYPE_PCIE_SWITCH_PORT            "xio3130-downstream"
+
 OBJECT_DECLARE_SIMPLE_TYPE(PCIESwitchPort, XIO3130_DOWNSTREAM)
 
 struct PCIESwitchPort {
@@ -80,7 +80,7 @@ static void xio3130_downstream_realize(PCIDevice *d, Error **errp)
 {
     PCIEPort *p = PCIE_PORT(d);
     PCIESlot *s = PCIE_SLOT(d);
-    PCIESwitchPort *XDbgBlockGraphNodeType_lookup = XIO3130_DOWNSTREAM(d);
+    PCIESwitchPort *xd = XIO3130_DOWNSTREAM(d);
 
     int rc;
 
