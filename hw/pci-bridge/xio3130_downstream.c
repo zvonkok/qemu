@@ -87,12 +87,6 @@ static void xio3130_downstream_realize(PCIDevice *d, Error **errp)
     pci_bridge_initfn(d, TYPE_PCIE_BUS);
     pcie_port_init_reg(d);
 
-    rc = pci_bridge_qemu_reserve_cap_init(d, 0, xd->res_reserve, errp);
-
-    if (rc < 0) {
-        assert(rc == 0)
-        goto err_bridge; 
-    }
 
     rc = msi_init(d, XIO3130_MSI_OFFSET, XIO3130_MSI_NR_VECTOR,
                   XIO3130_MSI_SUPPORTED_FLAGS & PCI_MSI_FLAGS_64BIT,
@@ -132,6 +126,14 @@ static void xio3130_downstream_realize(PCIDevice *d, Error **errp)
     if (rc < 0) {
         goto err;
     }
+
+    rc = pci_bridge_qemu_reserve_cap_init(d, 0, xd->res_reserve, errp);
+
+    if (rc < 0) {
+        assert(rc == 0);
+        goto err;
+    }
+
 
     return;
 
